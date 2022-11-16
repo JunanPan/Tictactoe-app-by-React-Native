@@ -1,19 +1,38 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View ,ImageBackground} from 'react-native';
 import bg from './assets/bg.jpeg'
+import React,{useState} from 'react';
 
 export default function App() {
+  const [board,setBoard] = useState(
+    [
+      ['','',''],
+      ['','',''],
+      ['','','']
+    ]
+  )
   return (
     <View style={styles.container}>
-      <ImageBackground source={bg} style={styles.bg} resizeMethod='contain'>
-        <View style={styles.circle}>
-        </View>
 
-      <View>
+      <ImageBackground source={bg} style={styles.bg} resizeMethod='contain'>
+      
+      <View style={styles.map}>
+        {board.map((row) => (
+          <View style={styles.row}>
+            {row.map((cell)=>(
+              <View style={styles.cell}></View>
+            ))
+            }
+          </View>))}
+
+      </View>
+
+      {/* <View style={styles.circle}/>
+      <View style={styles.cross}>
         <View style={styles.crossline} />
         <View style={[styles.crossline,styles.crosslineReversed]} />
         
-      </View>
+      </View> */}
 
 
       </ImageBackground>
@@ -38,7 +57,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  circle:{  
+  circle:{
+    position:'absolute',
+    left:1*125,
+    top:1*125,
     height:75,
     width:75,
     alignContent:'center',
@@ -49,16 +71,16 @@ const styles = StyleSheet.create({
     borderWidth:10,
     borderColor:'white'
   },
-  innerCircle:{
-    height:50,
-    width:50,
-    marginLeft:12,
-    // alignContent:'center',
-    // justifyContent:'center',
-    backgroundColor:'#242D34',
-    borderRadius:50
+  cross:{
+    position:'absolute',
+    left:2*135,
+    top:1*135,
+    width:75,
+    height:75,
+    // backgroundColor:'red'
   },
   crossline:{
+    left:32.5,
     position:'absolute',
     width:10,
     height:75,
@@ -73,6 +95,27 @@ const styles = StyleSheet.create({
   crosslineReversed:{
     transform: [{ rotate: "-45deg" } 
 ]
-
+  },
+  map:{
+    borderWidth:1,
+    marginTop:15,
+    height:360,
+    borderColor:"white",
+    width:"90%",
+    aspectRatio:1,
+  },
+  row:{
+    flex:1,
+    flexDirection:'row',
+    borderColor:'yellow',
+    borderWidth:2,
+    padding:3
+  },
+  cell:{
+    flex:1,
+    borderColor:"red",
+    borderWidth:1,
+    width:50,
+    height:110
   }
 })
