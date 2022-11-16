@@ -11,25 +11,96 @@ export default function App() {
       ['','','']
     ]
   )
+
+
   const [currentLabel,setCurrentLabel]=useState('x')
 
   const onPress=(rowIndex,colIndex)=>{
-    console.warn("hello",rowIndex,colIndex)
-    console.log(rowIndex,colIndex)
     if (board[rowIndex][colIndex]!==""){
       Alert.alert("already taken")
       return
     }
     setBoard(board=>{
-      console.log(board)
       // board[rowIndex,colIndex]="x";// doesn't work can‘t change existing array
       const boardcopy=[...board];
       boardcopy[rowIndex][colIndex]=currentLabel;
       currentLabel==='x'?setCurrentLabel('o'):setCurrentLabel('x')
       return boardcopy
     });
+    const end = checkWinState();
+    if (!end && fullOccupied()){
+      Alert.alert("Tie")
+      reset()
+    }
   }
 
+  const fullOccupied=()=>{
+    return board.every(row=>(
+      row.every(cell=>cell!=="")
+    ))
+  }
+  
+
+  const checkWinState = ()=>{
+    //rows
+    for (let i=0;i<3;i++){
+      if (board[i][0]==='x' &&board[i][1]==='x'&&board[i][2]==='x'){
+        Alert.alert("X win")
+        reset()
+        return true
+      }
+      if (board[i][0]==='o' &&board[i][1]==='o'&&board[i][2]==='o'){
+        Alert.alert("O win")
+        reset()
+        return true
+      }
+    }
+    //cols
+    for (let i=0;i<3;i++){
+      if (board[0][i]==='o' &&board[1][i]==='o'&&board[2][i]==='o'){
+        Alert.alert("O win")
+        reset()
+        return true
+      }
+      if (board[0][i]==='x' &&board[1][i]==='x'&&board[2][i]==='x'){
+        Alert.alert("X win")
+        reset()
+        return true
+      }
+    }
+    //1st diagonal
+    if (board[0][0]==='o' &&board[1][1]==='o'&&board[2][2]==='o'){
+      Alert.alert("O win")
+      reset()
+      return true
+    }
+    if (board[0][0]==='x' &&board[1][1]==='x'&&board[2][2]==='x'){
+      Alert.alert("X win")
+      reset()
+      return true
+    }
+    //2nd diagonal
+    if (board[0][2]==='o' &&board[1][1]==='o'&&board[2][0]==='o'){
+      Alert.alert("O win")
+      reset()
+      return true
+    }
+    if (board[0][2]==='x' &&board[1][1]==='x'&&board[2][0]==='x'){
+      Alert.alert("X win")
+      reset()
+      return true
+    }
+    return false
+  }
+
+  const reset=()=>{
+    setBoard([
+      ['','',''],
+      ['','',''],
+      ['','','']
+    ]),
+    setCurrentLabel('x')
+  }
 
   return (
     <View style={styles.container}>
@@ -70,6 +141,7 @@ export default function App() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -153,3 +225,4 @@ const styles = StyleSheet.create({
     // backgroundColor:'yellow'
   }
 })
+
