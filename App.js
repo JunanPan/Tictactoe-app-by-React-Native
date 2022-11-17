@@ -1,8 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View ,ImageBackground,Pressable, Alert} from 'react-native';
 import bg from './assets/bg.jpeg'
-import React,{useState} from 'react';
-import Cell from './components/Cell';
+import React,{useEffect, useState} from 'react';
 import Map from './components/Map';
 export default function App() {
   const [board,setBoard] = useState(
@@ -15,6 +14,12 @@ export default function App() {
 
 
   const [currentLabel,setCurrentLabel]=useState('x')
+
+  useEffect(()=>{
+    if (currentLabel==='o'){
+      RobotTurn();
+    }
+  },[currentLabel])//should write below the definition of currentLabel
 
   const onPress=(rowIndex,colIndex)=>{
     if (board[rowIndex][colIndex]!==""){
@@ -101,6 +106,20 @@ export default function App() {
       ['','','']
     ]),
     setCurrentLabel('x')
+  }
+
+  const RobotTurn=()=>{
+    const possiblePositions=[];
+    board.forEach((row,rowIndex)=>{
+      row.forEach((cell,colIndex)=>{
+        if (cell===""){
+          possiblePositions.push({row:rowIndex,col:colIndex})
+        }
+
+      })
+    })
+    const chosenOption = possiblePositions[Math.floor(Math.random()*possiblePositions.length)]
+    onPress(chosenOption.row,chosenOption.col)
   }
 
   return (
