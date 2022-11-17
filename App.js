@@ -3,6 +3,8 @@ import { StyleSheet, Text, View ,ImageBackground,Pressable, Alert} from 'react-n
 import bg from './assets/bg.jpeg'
 import React,{useEffect, useState} from 'react';
 import Map from './components/Map';
+import Mode from './components/Mode';
+import Button from './components/Button';
 export default function App() {
   const [board,setBoard] = useState(
     [
@@ -11,7 +13,9 @@ export default function App() {
       ['','','']
     ]
   )
-
+  
+  const [gameMode,setGameMode]=useState("Normal")//Normal, Misere, Reverse Misere
+  
 
   const [currentLabel,setCurrentLabel]=useState('x')
 
@@ -21,7 +25,8 @@ export default function App() {
     }
   },[currentLabel])//should write below the definition of currentLabel
 
-  const onPress=(rowIndex,colIndex)=>{
+  const occupyOneposition=(rowIndex,colIndex)=>{
+    
     if (board[rowIndex][colIndex]!==""){
       Alert.alert("already taken")
       return
@@ -29,11 +34,16 @@ export default function App() {
     setBoard(board=>{
       // board[rowIndex,colIndex]="x";// doesn't work can‘t change existing array
       const boardcopy=[...board];
+      console.log(rowIndex,colIndex,currentLabel);
       boardcopy[rowIndex][colIndex]=currentLabel;
-      currentLabel==='x'?setCurrentLabel('o'):setCurrentLabel('x')
+      console.log(boardcopy);
       return boardcopy
-    });
+    })
+    console.log(board)
+    currentLabel==='x'?setCurrentLabel('o'):setCurrentLabel('x');
+    console.warn(board)
     const end = checkWinState();
+
     if (!end && fullOccupied()){
       Alert.alert("Tie")
       reset()
@@ -115,16 +125,14 @@ export default function App() {
         if (cell===""){
           possiblePositions.push({row:rowIndex,col:colIndex})
         }
-
       })
     })
     const chosenOption = possiblePositions[Math.floor(Math.random()*possiblePositions.length)]
-    onPress(chosenOption.row,chosenOption.col)
+    occupyOneposition(chosenOption.row,chosenOption.col);
   }
 
   return (
     <View style={styles.container}>
-
       <ImageBackground source={bg} style={styles.bg} resizeMethod='contain'>
       <Text style={{fontSize:25,color:'white'}}>Current Turn:{' '}
       {currentLabel==='x'?
@@ -132,16 +140,17 @@ export default function App() {
       <Text style={{color:'#BB445C'}}>{currentLabel.toUpperCase()}</Text>}
         
         </Text>
-      <Map board={board} onPress={onPress}/>
+      <Map board={board} onPress={occupyOneposition}/>
 
+      <Mode gameMode={gameMode} onPress={setGameMode}/>
+
+      <Button onPress={reset}/>
       </ImageBackground>
       
       <StatusBar style="auto" />
     </View>
   );
-}
-
-
+  }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -157,10 +166,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  
-
-
 
 })
 
