@@ -23,7 +23,14 @@ export default function App() {
     if (currentLabel==='o'){
       RobotTurn();
     }
+    const end = checkWinState();
+    if (!end && fullOccupied()){
+      Alert.alert("Tie")
+      reset()
+    }
   },[currentLabel])//should write below the definition of currentLabel
+
+
 
   const occupyOneposition=(rowIndex,colIndex)=>{
     
@@ -34,20 +41,10 @@ export default function App() {
     setBoard(board=>{
       // board[rowIndex,colIndex]="x";// doesn't work can‘t change existing array
       const boardcopy=[...board];
-      console.log(rowIndex,colIndex,currentLabel);
       boardcopy[rowIndex][colIndex]=currentLabel;
-      console.log(boardcopy);
       return boardcopy
     })
-    console.log(board)
     currentLabel==='x'?setCurrentLabel('o'):setCurrentLabel('x');
-    console.warn(board)
-    const end = checkWinState();
-
-    if (!end && fullOccupied()){
-      Alert.alert("Tie")
-      reset()
-    }
   }
 
   const fullOccupied=()=>{
@@ -118,6 +115,7 @@ export default function App() {
     setCurrentLabel('x')
   }
 
+
   const RobotTurn=()=>{
     const possiblePositions=[];
     board.forEach((row,rowIndex)=>{
@@ -127,6 +125,7 @@ export default function App() {
         }
       })
     })
+
     const chosenOption = possiblePositions[Math.floor(Math.random()*possiblePositions.length)]
     occupyOneposition(chosenOption.row,chosenOption.col);
   }

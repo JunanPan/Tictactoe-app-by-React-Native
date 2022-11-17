@@ -4,10 +4,10 @@ import {View,StyleSheet,Text, Pressable} from 'react-native'
 const Button=(props)=>{
 const reset=props.onPress;
 return (
-    <Pressable style={styles.buttons} onPress={()=>reset()}>
-        <View style={styles.button}><Text style={{color:'white'}}>Rest</Text></View>
-        <View style={styles.button}><Text style={{color:'white'}}>Start</Text></View>
-    </Pressable>
+    <View style={styles.buttons} >
+        <Pressable style={styles.button} onPress={()=>reset()}><Text style={{color:'white'}}>Rest</Text></Pressable>
+        <Pressable style={styles.button}><Text style={{color:'white'}}>Start</Text></Pressable>
+    </View>
 );
 };
 
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
         bottom:-5,
         flexDirection:'row',
         justifyContent:'center',
-        backgroundColor:"",
+        backgroundColor:"#BB445C",
         borderRadius:50
     }
 })
