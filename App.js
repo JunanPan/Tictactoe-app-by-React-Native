@@ -1,7 +1,8 @@
-// import { Amplify } from 'aws-amplify'
-// import awsconfig from './src/aws-exports'
+import { Amplify } from 'aws-amplify'
+import awsconfig from './src/aws-exports'
+Amplify.configure(awsconfig)
 
-// Amplify.configure(awsconfig)
+import { withAuthenticator } from 'aws-amplify-react-native';
 
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View ,ImageBackground,Pressable, Alert} from 'react-native';
@@ -10,7 +11,8 @@ import React,{useEffect, useState} from 'react';
 import Map from './components/Map';
 import RuleMode from './components/RuleMode';
 import Button from './components/Button';
-export default function App() {
+// export default function App() {
+function App() {
   const [board,setBoard] = useState(
     [
       ['','',''],
@@ -175,3 +177,4 @@ const styles = StyleSheet.create({
 
 })
 
+export default withAuthenticator(App);
