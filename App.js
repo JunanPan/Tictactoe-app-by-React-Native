@@ -3,7 +3,7 @@ import awsconfig from './src/aws-exports'
 Amplify.configure(awsconfig)
 
 import { withAuthenticator } from 'aws-amplify-react-native';
-
+import {Auth} from 'aws-amplify';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View ,ImageBackground,Pressable, Alert} from 'react-native';
 import bg from './assets/bg.jpeg'
@@ -28,7 +28,7 @@ function App() {
 
   useEffect(()=>{
     if (currentLabel==='o'){
-      RobotTurn();
+      RobotTurn(); //comment here to comment robot Turn
     }
     const end = checkWinState();
     if (!end && fullOccupied()){
@@ -121,7 +121,9 @@ function App() {
     ]),
     setCurrentLabel('x')
   }
-
+  const Logout=()=>{
+    Auth.signOut();
+  }
 
   const RobotTurn=()=>{
     const possiblePositions=[];
@@ -152,7 +154,8 @@ function App() {
 
       <RuleMode gameMode={gameMode} onPress={setGameMode}/>
 
-      <Button onPress={reset}/>
+      <Button onPress={reset} Logout={Logout}/>
+      
       </ImageBackground>
       
       <StatusBar style="auto" />
