@@ -1,9 +1,14 @@
+// import { Amplify } from 'aws-amplify'
+// import awsconfig from './src/aws-exports'
+
+// Amplify.configure(awsconfig)
+
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View ,ImageBackground,Pressable, Alert} from 'react-native';
 import bg from './assets/bg.jpeg'
 import React,{useEffect, useState} from 'react';
 import Map from './components/Map';
-import Mode from './components/Mode';
+import RuleMode from './components/RuleMode';
 import Button from './components/Button';
 export default function App() {
   const [board,setBoard] = useState(
@@ -125,7 +130,9 @@ export default function App() {
         }
       })
     })
-
+    if (possiblePositions.length===0){
+      return
+    }
     const chosenOption = possiblePositions[Math.floor(Math.random()*possiblePositions.length)]
     occupyOneposition(chosenOption.row,chosenOption.col);
   }
@@ -141,7 +148,7 @@ export default function App() {
         </Text>
       <Map board={board} onPress={occupyOneposition}/>
 
-      <Mode gameMode={gameMode} onPress={setGameMode}/>
+      <RuleMode gameMode={gameMode} onPress={setGameMode}/>
 
       <Button onPress={reset}/>
       </ImageBackground>

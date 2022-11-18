@@ -1,7 +1,7 @@
 import React from "react";
 import {View,StyleSheet,Text, Pressable} from 'react-native'
 
-const Mode=(props)=>{
+const RuleMode=(props)=>{
 const gameMode=props.gameMode;
 const setGameMode = props.onPress;
 return (
@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Mode;
+export default RuleMode;
