@@ -5,42 +5,76 @@ Amplify.configure(awsconfig)
 import { withAuthenticator } from 'aws-amplify-react-native';
 import {Auth} from 'aws-amplify';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View ,ImageBackground,Pressable, Alert} from 'react-native';
+import { Text, View ,ImageBackground,Pressable, Alert} from 'react-native';
 import bg from './assets/bg.jpeg'
 import React,{useEffect, useState} from 'react';
 import Map from './components/Map';
 import RuleMode from './components/RuleMode';
 import Button from './components/Button';
+import {Normal_checkWinState,Normal_RobotTurn} from './src/utils/gameLogic';
+import {emptyBoard,fullOccupied} from './src/utils/commonUtils';
+import {styles} from './App.style.js';
+
+
 // export default function App() {
 function App() {
-  const [board,setBoard] = useState(
-    [
-      ['','',''],
-      ['','',''],
-      ['','','']
-    ]
-  )
+  const [board,setBoard] = useState(emptyBoard);
   
   const [gameMode,setGameMode]=useState("Normal")//Normal, Misere, Reverse Misere
   
-
   const [currentLabel,setCurrentLabel]=useState('x')
+
+  const reset=()=>{
+    setBoard([
+      ['','',''],
+      ['','',''],
+      ['','','']
+    ]),
+    setCurrentLabel('x')
+  }
 
   useEffect(()=>{
     if (currentLabel==='o'){
-      RobotTurn(); //comment here to comment robot Turn
+      const chosenOption = Normal_RobotTurn(board); //comment here to comment robot Turn
+      if (chosenOption){//if robot has place to go
+        Normal_occupyOneposition(chosenOption.row,chosenOption.col);
+      }
+      
     }
-    const end = checkWinState();
-    if (!end && fullOccupied()){
-      Alert.alert("Tie")
-      reset()
+    let end = "";
+    if (gameMode==="Normal"){
+      end = Normal_checkWinState(board);
+      if (end===1){//first player win
+        Alert.alert("X win!","",[{
+          text:'Restart',
+          onPress:reset,
+        }]);
+        // reset()
+      }
+      else if (end===2){//second player win
+        Alert.alert("O win!","",[{
+          text:'Restart',
+          onPress:reset,
+        }]);
+        //  reset()
+      }
+    }
+    if (end===3 && fullOccupied(board)){
+      Alert.alert("Tie!","",[{
+        text:'Restart',
+        onPress:reset,
+      }]);
+      // reset()
     }
   },[currentLabel])//should write below the definition of currentLabel
 
 
+  const Logout=()=>{
+    Auth.signOut();
+  }
 
-  const occupyOneposition=(rowIndex,colIndex)=>{
-    
+  const Normal_occupyOneposition=(rowIndex,colIndex)=>{
+    console.warn(board[rowIndex][colIndex])
     if (board[rowIndex][colIndex]!==""){
       Alert.alert("already taken")
       return
@@ -54,92 +88,22 @@ function App() {
     currentLabel==='x'?setCurrentLabel('o'):setCurrentLabel('x');
   }
 
-  const fullOccupied=()=>{
-    return board.every(row=>(
-      row.every(cell=>cell!=="")
-    ))
-  }
-  
-
-  const checkWinState = ()=>{
-    //rows
-    for (let i=0;i<3;i++){
-      if (board[i][0]==='x' &&board[i][1]==='x'&&board[i][2]==='x'){
-        Alert.alert("X win")
-        reset()
-        return true
-      }
-      if (board[i][0]==='o' &&board[i][1]==='o'&&board[i][2]==='o'){
-        Alert.alert("O win")
-        reset()
-        return true
-      }
-    }
-    //cols
-    for (let i=0;i<3;i++){
-      if (board[0][i]==='o' &&board[1][i]==='o'&&board[2][i]==='o'){
-        Alert.alert("O win")
-        reset()
-        return true
-      }
-      if (board[0][i]==='x' &&board[1][i]==='x'&&board[2][i]==='x'){
-        Alert.alert("X win")
-        reset()
-        return true
-      }
-    }
-    //1st diagonal
-    if (board[0][0]==='o' &&board[1][1]==='o'&&board[2][2]==='o'){
-      Alert.alert("O win")
-      reset()
-      return true
-    }
-    if (board[0][0]==='x' &&board[1][1]==='x'&&board[2][2]==='x'){
-      Alert.alert("X win")
-      reset()
-      return true
-    }
-    //2nd diagonal
-    if (board[0][2]==='o' &&board[1][1]==='o'&&board[2][0]==='o'){
-      Alert.alert("O win")
-      reset()
-      return true
-    }
-    if (board[0][2]==='x' &&board[1][1]==='x'&&board[2][0]==='x'){
-      Alert.alert("X win")
-      reset()
-      return true
-    }
-    return false
-  }
-
-  const reset=()=>{
-    setBoard([
-      ['','',''],
-      ['','',''],
-      ['','','']
-    ]),
-    setCurrentLabel('x')
-  }
-  const Logout=()=>{
-    Auth.signOut();
-  }
-
-  const RobotTurn=()=>{
-    const possiblePositions=[];
-    board.forEach((row,rowIndex)=>{
-      row.forEach((cell,colIndex)=>{
-        if (cell===""){
-          possiblePositions.push({row:rowIndex,col:colIndex})
-        }
-      })
-    })
-    if (possiblePositions.length===0){
-      return
-    }
-    const chosenOption = possiblePositions[Math.floor(Math.random()*possiblePositions.length)]
-    occupyOneposition(chosenOption.row,chosenOption.col);
-  }
+  // const Normal_RobotTurn=(board)=>{
+  //   const possiblePositions=[];
+  //   board.forEach((row,rowIndex)=>{
+  //     row.forEach((cell,colIndex)=>{
+  //       if (cell===""){
+  //         possiblePositions.push({row:rowIndex,col:colIndex})
+  //       }
+  //     })
+  //   })
+  //   if (possiblePositions.length===0){
+  //     return
+  //   }
+  //   const chosenOption = possiblePositions[Math.floor(Math.random()*possiblePositions.length)]
+  //   console.warn(chosenOption.row,chosenOption.col)
+  //   Normal_occupyOneposition(chosenOption.row,chosenOption.col);
+  // }
 
   return (
     <View style={styles.container}>
@@ -150,7 +114,7 @@ function App() {
       <Text style={{color:'#BB445C'}}>{currentLabel.toUpperCase()}</Text>}
         
         </Text>
-      <Map board={board} onPress={occupyOneposition}/>
+      <Map board={board} onPress={Normal_occupyOneposition}/>
 
       <RuleMode gameMode={gameMode} onPress={setGameMode}/>
 
@@ -162,22 +126,6 @@ function App() {
     </View>
   );
   }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor:'#242D34'
-  },
-  bg:{
-    paddingTop:15,
-    width:'100%',
-    height:'100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 
-})
 
 export default withAuthenticator(App);
