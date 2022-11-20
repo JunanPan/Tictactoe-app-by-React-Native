@@ -1,24 +1,39 @@
 import React from "react";
-import {View,StyleSheet,Text, Pressable} from 'react-native'
+import {View,StyleSheet,Text, Pressable,Alert} from 'react-native'
 
 const RuleMode=(props)=>{
-const gameMode=props.gameMode;
-const setGameMode = props.onPress;
+const ruleMode=props.ruleMode;
+const setRuleMode = props.onPress;
 return (
     <View style={styles.modes}> 
 
-    <Pressable onPress={()=>setGameMode('Normal')} style={[styles.mode,{backgroundColor:gameMode==="Normal"? "#4f5686":"#191f24"}]}>
+    <Pressable onPress={()=>{
+        setRuleMode('Normal');
+        Alert.alert("Normal Rule:","XXX or OOO win.",[{
+            text:'Got it!',
+          }]);
+    }} style={[styles.mode,{backgroundColor:ruleMode==="Normal"? "#4f5686":"#191f24"}]}>
             <Text style={{color:'white'}}> Normal</Text>
     </Pressable> 
        
        
-    <Pressable onPress={()=>setGameMode('Misere')} style={[styles.mode,{backgroundColor:gameMode==="Misere"? "#4f5686":"#191f24"}]}>
+    <Pressable onPress={()=>{
+        setRuleMode('Misere');
+        Alert.alert("Misere Rule:","XXX or OOO lose.",[{
+            text:'Got it!',
+          }]);
+        }} style={[styles.mode,{backgroundColor:ruleMode==="Misere"? "#4f5686":"#191f24"}]}>
         <Text style={{color:'white'}}> Misere</Text>
     </Pressable> 
 
-    <Pressable onPress={()=>setGameMode('Reverse Misere')} style={[styles.mode,{backgroundColor:gameMode==="Reverse Misere"? "#4f5686":"#191f24"}]}>
+    {/* <Pressable onPress={()=>{
+        setRuleMode('Reverse Misere');
+        Alert.alert("Reverse Misere Rule:","XXX lose.",[{
+            text:'Got it!',
+          }]);
+        }} style={[styles.mode,{backgroundColor:ruleMode==="Reverse Misere"? "#4f5686":"#191f24"}]}>
         <Text style={{color:'white'}}> Reverse Misere</Text>
-    </Pressable> 
+    </Pressable>  */}
     
     </View>
 );

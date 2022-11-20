@@ -1,0 +1,10 @@
+type Game @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  Player1: String!
+  player2: String!
+  map: String!
+  currentPlayer: String
+  points1: Int
+  points2: Int
+}
+ 
