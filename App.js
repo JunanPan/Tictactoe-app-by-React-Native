@@ -33,6 +33,7 @@ function App() {
   const [playMode,setPlayMode]=useState("Offline") //Offline,Online,Robot Challenge
   const [game,setGame]=useState(null);
   const [currentLabel,setCurrentLabel]=useState('x')
+  const [ourLabel,setOurLabel]=useState(null)
   const [userData,setUserData] = useState(null)
   //const userData = await Auth.currentAuthenticatedUser();
 
@@ -43,7 +44,11 @@ function App() {
       ['','','']
     ]),
     setCurrentLabel('x')
+    if (playMode==="Online"){
+      setGame(null);
+    }
   }
+
 
   useEffect(()=>{
     Auth.currentAuthenticatedUser().then(setUserData)
@@ -52,7 +57,8 @@ function App() {
   useEffect(()=>{
     reset();
     if (playMode==="Online"){
-      Normal_findOrCreateOnlineGame();
+      Normal_getAvailableGames()
+      // Normal_findOrCreateOnlineGame();
     }
     else{ //if it is switched to not Online
       deleteTemporaryGame();
@@ -66,12 +72,30 @@ function App() {
   },[ruleMode])
 
   useEffect(()=>{
+    if(!game){
+      return
+    }
+    const subscription = DataStore.observe(Game,game.id).subscribe((msg)=>{
+      console.log(msg.model,msg.opType, msg.element);
+      if (msg.opType==="UPDATE"){
+        setGame(msg.element);
+        setBoard(JSON.parse(msg.element.map))//from string to json
+        setCurrentLabel(msg.element.currentPlayer)
+      }
+    })
+    return ()=>subscription.unsubscribe();
+  },[game])
+
+  useEffect(()=>{
+    if (playMode==="Online" && game){
+      // if (playMode==="Online"){
+      updateGame();
+    }
     if (playMode==="Robot Challenge" && currentLabel==='o'){
       const chosenOption = Normal_RobotTurn(board); //comment here to comment robot Turn
       if (chosenOption){//if robot has place to go
-        Normal_occupyOneposition(chosenOption.row,chosenOption.col);
+        occupyOneposition(chosenOption.row,chosenOption.col);
       }
-      
     }
     let end = "";
     if (ruleMode==="Normal"){
@@ -106,18 +130,19 @@ function App() {
     //search for available games that doesn't have the second player
     const games = await Normal_getAvailableGames();
     //if no existing game, create a new one, and wait for the component
-    // await Normal_createNewGame();
+    // await createNewGame();
   }
 
   const Normal_getAvailableGames = async()=>{
     // const games = await DataStore.query(Game);
     const games = await DataStore.query(Game,game=>game.player2.eq("not yet"));
+    console.log(games)
     if (games.length>0){
       console.warn("find and join!")
       joinGame(games[0]);//join the first game;
     }
     else{
-      await Normal_createNewGame();
+      await createNewGame();
     }
     return games
   }
@@ -137,37 +162,32 @@ function App() {
     setGame(null);
   }
   const joinGame = async(game)=>{
-    const updatedGame= await DataStore.save(Game.copyOf(game,updatedGame=>{
+    const updatedGame= await DataStore.save(
+      Game.copyOf(game,updatedGame=>{
       updatedGame.player2=userData.attributes.sub;
-    }))
+    })
+    )
     setGame(updatedGame)
+    setOurLabel('o')//join a game, our label: o
   }
-  const Normal_createNewGame= async()=>{
+  const createNewGame= async()=>{
     // const userData = await Auth.currentAuthenticatedUser();
     // console.log(userData)
 
     const emptyBoardString = JSON.stringify(emptyBoard);
-
     
     const newGame =  await DataStore.save(
       new Game({
         "Player1": userData.attributes.sub,
         "player2": "not yet",
         "map": emptyBoardString,
-        "currentPlayer": "X",
+        "currentPlayer": "x",
         "points1": 0,
         "points2": 0,
         })
-      //   new Game({
-      //   "Player1": "Lorem ipsum dolor sit amet",
-      //   "player2": "Lorem ipsum dolor sit amet",
-      //   "map": "Lorem ipsum dolor sit amet",
-      //   "currentPlayer": "Lorem ipsum dolor sit amet",
-      //   "points1": 1020,
-      //   "points2": 1020
-      // })
     )
     setGame(newGame);
+    setOurLabel('x');//create a game , our label:x
     }
   
   const Logout= async()=>{
@@ -175,7 +195,22 @@ function App() {
     Auth.signOut();
   }
 
-  const Normal_occupyOneposition=(rowIndex,colIndex)=>{
+  const updateGame=()=>{
+    if(!game){
+      return;
+    }
+    DataStore.save(
+      Game.copyOf(game,(g)=>{
+        g.currentPlayer = currentLabel;
+        g.map = JSON.stringify(board)
+      })
+    );
+  }
+  const occupyOneposition=(rowIndex,colIndex)=>{
+    if (playMode==="Online" && game?.currentPlayer!==ourLabel){
+      Alert.alert("Not your turn")
+      return;
+    }
     if (board[rowIndex][colIndex]!==""){
       Alert.alert("already taken")
       return
@@ -201,7 +236,7 @@ function App() {
       <Text style={{color:'#BB445C'}}>{currentLabel.toUpperCase()}</Text>}
         
         </Text>
-      <Map board={board} onPress={Normal_occupyOneposition}/>
+      <Map board={board} onPress={occupyOneposition}/>
 
       <RuleMode ruleMode={ruleMode} onPress={setRuleMode}/>
 
