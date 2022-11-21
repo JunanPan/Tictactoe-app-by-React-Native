@@ -71,7 +71,7 @@ export const Normal_checkWinState = (board)=>{
     return 3//no result yet
   }
 
-export  const Normal_RobotTurn=(board)=>{
+export  const Normal_RobotTurn=(board,playerLastStep)=>{
     const possiblePositions=[];
     board.forEach((row,rowIndex)=>{
       row.forEach((cell,colIndex)=>{
@@ -87,27 +87,39 @@ export  const Normal_RobotTurn=(board)=>{
     return chosenOption;
   }
 
-  export  const Misere_RobotTurn=(board)=>{
-    //first step
-    if (board===[
-      ['','',''],
-      ['','',''],
-      ['','','']
-    ]){
-      return {row:1,col:1};
+  export  const Misere_RobotTurn=(board,playerLastStep)=>{
+    let count=0;
+    for(let i=0;i<board.length;i++){
+      for(let j=0;j<board[0].length;j++){
+        if(board[i][j]!==''){
+          count+=1;
+        }
       }
-
-    const possiblePositions=[];
-    board.forEach((row,rowIndex)=>{
-      row.forEach((cell,colIndex)=>{
-        if (cell===""){
-          possiblePositions.push({row:rowIndex,col:colIndex})
-        }
-      })
-    })
-    if (possiblePositions.length===0){
+    }
+    if(count===9){
       return false;
     }
-    const chosenOption = possiblePositions[Math.floor(Math.random()*possiblePositions.length)]
-    return chosenOption;
-  }
+    else if(count===0){
+      return {row:1,col:1};
+    }
+    else{
+      console.log(1*2-playerLastStep[0],1*2-playerLastStep[1])
+      return {row:1*2-playerLastStep[0],col:1*2-playerLastStep[1]};
+    }
+
+      
+    }
+    // const possiblePositions=[];
+    // board.forEach((row,rowIndex)=>{
+    //   row.forEach((cell,colIndex)=>{
+    //     if (cell===""){
+    //       possiblePositions.push({row:rowIndex,col:colIndex})
+    //     }
+    //   })
+    // })
+    // if (possiblePositions.length===0){
+    //   return false;
+    // }
+    // const chosenOption = possiblePositions[Math.floor(Math.random()*possiblePositions.length)]
+    // return chosenOption;
+  

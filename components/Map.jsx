@@ -8,7 +8,10 @@ return (
     {board.map((row,rowIndex) => (
       <View style={styles.row}>
         {row.map((cell,colIndex)=>(
-          <Cell cell={cell} onPress={()=>onPress(rowIndex,colIndex)}/>
+          <Cell cell={cell} onPress={()=>{
+            onPress[0](rowIndex,colIndex);
+            onPress[1]([rowIndex,colIndex]);
+          }}/>
         ))
         }
       </View>

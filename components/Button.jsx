@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
     },
     button:{
         borderWidth:5,
+        marginLeft:55,
         width:80,
         height:50,
         margin:5,

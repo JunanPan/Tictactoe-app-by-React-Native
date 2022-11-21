@@ -19,7 +19,7 @@ import Map from './components/Map';
 import RuleMode from './components/RuleMode';
 import PlayMode from './components/PlayMode';
 import Button from './components/Button';
-import {Normal_checkWinState,Misere_checkWinState,Normal_RobotTurn} from './src/utils/gameLogic';
+import {Normal_checkWinState,Misere_checkWinState,Normal_RobotTurn,Misere_RobotTurn} from './src/utils/gameLogic';
 import {emptyBoard,fullOccupied} from './src/utils/commonUtils';
 import {styles} from './App.style.js';
 
@@ -34,15 +34,23 @@ function App() {
   const [currentLabel,setCurrentLabel]=useState('x')
   const [ourLabel,setOurLabel]=useState(null)
   const [userData,setUserData] = useState(null)
+  const [playerLastStep,setPlayerLastStep]=useState([null,null])
   //const userData = await Auth.currentAuthenticatedUser();
 
  const reset=()=>{
+    //set Label to empty first,
+    setCurrentLabel('');//avoid the situations like "x=>x" which don't trigger useEffect
     setBoard([
       ['','',''],
       ['','',''],
       ['','','']
-    ]),
-    setCurrentLabel('x')
+    ]);
+    if(playMode==="Robot Challenge"){
+       setCurrentLabel('o');
+    }
+    else{
+      setCurrentLabel('x');
+    }
   }
 
 
@@ -58,15 +66,20 @@ function App() {
     else{ //if it is switched to not Online
       deleteTemporaryGame();
     }
-
+    if (playMode==="Robot Challenge"){
+      setCurrentLabel('o');
+    }
   },[playMode])
 
 
   useEffect(()=>{
     reset();
     if (playMode==="Online"){
-      getAvailableGames()
+      getAvailableGames();
     }
+    // if (playMode==="Robot Challenge"){
+    //   setCurrentLabel('o');
+    // }
   },[ruleMode])
 
   useEffect(()=>{
@@ -85,19 +98,20 @@ function App() {
   },[game])
 
   useEffect(()=>{
+    if (currentLabel===''){//do nothing
+      return
+    }
+
     if (playMode==="Online" && game){
       // if (playMode==="Online"){
       updateGame();
     }
-    if (playMode==="Robot Challenge" && currentLabel==='o'){
-      const chosenOption = Normal_RobotTurn(board); //comment here to comment robot Turn
-      if (chosenOption){//if robot has place to go
-        occupyOneposition(chosenOption.row,chosenOption.col);
-      }
-    }
+
+
     let end = "";
     if (ruleMode==="Normal"){
-      end = Normal_checkWinState(board);}
+      end = Normal_checkWinState(board);
+    }
     else if (ruleMode==="Misere"){
       end = Misere_checkWinState(board);
     }
@@ -115,14 +129,28 @@ function App() {
       }]);
       //  reset()
     }
-    if (end===3 && fullOccupied(board)){
+    else if (end===3 && fullOccupied(board)){
       Alert.alert("Tie!","",[{
         text:'Restart',
         onPress:reset,
       }]);
       // reset()
     }
-    
+    else if(end===3){//not end yet, other situations
+      if (playMode==="Robot Challenge" && currentLabel==='o'){
+        let chosenOption;
+        if (ruleMode==="Normal"){
+          chosenOption = Normal_RobotTurn(board,playerLastStep); 
+        }
+        else if(ruleMode==="Misere"){
+          chosenOption = Misere_RobotTurn(board,playerLastStep); 
+        }
+        
+        if (chosenOption){//if robot has place to go
+          occupyOneposition(chosenOption.row,chosenOption.col);
+        }
+      }
+    }
     
   },[currentLabel])//should write below the definition of currentLabel
 
@@ -243,7 +271,7 @@ function App() {
       <Text style={{color:'#BB445C'}}>{currentLabel.toUpperCase()}</Text>}
         
         </Text>
-      <Map board={board} onPress={occupyOneposition}/>
+      <Map board={board} onPress={[occupyOneposition,setPlayerLastStep]}/>
 
       <RuleMode ruleMode={ruleMode} onPress={setRuleMode}/>
 
