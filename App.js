@@ -19,17 +19,16 @@ import Map from './components/Map';
 import RuleMode from './components/RuleMode';
 import PlayMode from './components/PlayMode';
 import Button from './components/Button';
-import {Normal_checkWinState,Normal_RobotTurn} from './src/utils/gameLogic';
+import {Normal_checkWinState,Misere_checkWinState,Normal_RobotTurn} from './src/utils/gameLogic';
 import {emptyBoard,fullOccupied} from './src/utils/commonUtils';
 import {styles} from './App.style.js';
-import { join } from 'lodash';
+
 
 
 // export default function App() {
 function App() {
   const [board,setBoard] = useState(emptyBoard);
-  
-  const [ruleMode,setRuleMode]=useState("Normal")//Normal, Misere, Reverse Misere
+  const [ruleMode,setRuleMode]=useState("Normal")//Normal, Misere
   const [playMode,setPlayMode]=useState("Offline") //Offline,Online,Robot Challenge
   const [game,setGame]=useState(null);
   const [currentLabel,setCurrentLabel]=useState('x')
@@ -44,9 +43,6 @@ function App() {
       ['','','']
     ]),
     setCurrentLabel('x')
-    if (playMode==="Online"){
-      setGame(null);
-    }
   }
 
 
@@ -57,8 +53,7 @@ function App() {
   useEffect(()=>{
     reset();
     if (playMode==="Online"){
-      Normal_getAvailableGames()
-      // Normal_findOrCreateOnlineGame();
+      getAvailableGames()
     }
     else{ //if it is switched to not Online
       deleteTemporaryGame();
@@ -69,6 +64,9 @@ function App() {
 
   useEffect(()=>{
     reset();
+    if (playMode==="Online"){
+      getAvailableGames()
+    }
   },[ruleMode])
 
   useEffect(()=>{
@@ -99,21 +97,23 @@ function App() {
     }
     let end = "";
     if (ruleMode==="Normal"){
-      end = Normal_checkWinState(board);
-      if (end===1){//first player win
-        Alert.alert("X win!","",[{
-          text:'Restart',
-          onPress:reset,
-        }]);
-        // reset()
-      }
-      else if (end===2){//second player win
-        Alert.alert("O win!","",[{
-          text:'Restart',
-          onPress:reset,
-        }]);
-        //  reset()
-      }
+      end = Normal_checkWinState(board);}
+    else if (ruleMode==="Misere"){
+      end = Misere_checkWinState(board);
+    }
+    if (end===1){//first player win
+      Alert.alert("X win!","",[{
+        text:'Restart',
+        onPress:reset,
+      }]);
+      // reset()
+    }
+    else if (end===2){//second player win
+      Alert.alert("O win!","",[{
+        text:'Restart',
+        onPress:reset,
+      }]);
+      //  reset()
     }
     if (end===3 && fullOccupied(board)){
       Alert.alert("Tie!","",[{
@@ -122,35 +122,40 @@ function App() {
       }]);
       // reset()
     }
+    
+    
   },[currentLabel])//should write below the definition of currentLabel
 
-  const Normal_findOrCreateOnlineGame =  async()=>{
 
-    // console.warn("create online game")
-    //search for available games that doesn't have the second player
-    const games = await Normal_getAvailableGames();
-    //if no existing game, create a new one, and wait for the component
-    // await createNewGame();
-  }
-
-  const Normal_getAvailableGames = async()=>{
+  const getAvailableGames = async()=>{
     // const games = await DataStore.query(Game);
-    const games = await DataStore.query(Game,game=>game.player2.eq("not yet"));
-    console.log(games)
+    //search for available games that doesn't have the second player
+    let games=null;
+    if (ruleMode==="Normal"){
+      //find a normal game
+      games = await DataStore.query(Game,(game)=>game.and(game=>[
+      game.player2.eq("not yet"),
+      game.points1.eq(1)
+    ]))
+    }
+    else if(ruleMode==="Misere"){
+      //find a misere game
+      games = await DataStore.query(Game,game=>game.and(game=>[
+        game.player2.eq("not yet"),
+        game.points1.eq(2)
+      ]))
+    }
+
     if (games.length>0){
-      console.warn("find and join!")
+      Alert.alert("Find a game, good luck!")
       joinGame(games[0]);//join the first game;
     }
-    else{
+    else{//if no existing game, create a new one, and wait for the component
       await createNewGame();
     }
     return games
   }
   const deleteTemporaryGame=async ()=>{
-    // if (!game ||game.player2 ){//if no second player join
-    //   setGame(null);
-    //   return;
-    // }
     if (!game){
       return
     }
@@ -169,6 +174,7 @@ function App() {
     )
     setGame(updatedGame)
     setOurLabel('o')//join a game, our label: o
+
   }
   const createNewGame= async()=>{
     // const userData = await Auth.currentAuthenticatedUser();
@@ -182,7 +188,7 @@ function App() {
         "player2": "not yet",
         "map": emptyBoardString,
         "currentPlayer": "x",
-        "points1": 0,
+        "points1": ruleMode==="Normal"? 1:2,//points1=1 means normal, points1=2 means misere.
         "points2": 0,
         })
     )
@@ -191,6 +197,7 @@ function App() {
     }
   
   const Logout= async()=>{
+    deleteTemporaryGame();
     await DataStore.clear();
     Auth.signOut();
   }

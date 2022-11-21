@@ -7,9 +7,10 @@ const Logout=props.Logout;
 return (
     <View style={styles.buttons} >
         <Pressable style={styles.button} onPress={()=>reset()}><Text style={{color:'white'}}>Rest</Text></Pressable>
-        <Pressable style={styles.button}><Text style={{color:'white'}}>Start</Text></Pressable>
+        {/* <Pressable style={styles.button}><Text style={{color:'white'}}>Start</Text></Pressable> */}
         <Text onPress={()=>Logout()} style={styles.logout}>Logout</Text>
     </View>
+
 );
 };
 
