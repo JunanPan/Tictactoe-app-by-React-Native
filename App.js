@@ -19,8 +19,7 @@ import Map from './components/Map';
 import RuleMode from './components/RuleMode';
 import PlayMode from './components/PlayMode';
 import Button from './components/Button';
-import {Normal_checkWinState,Misere_checkWinState,Normal_RobotTurn,Misere_RobotTurn} from './src/utils/gameLogic';
-import {emptyBoard,fullOccupied} from './src/utils/commonUtils';
+import {Normal_checkWinState,Misere_checkWinState,Normal_RobotTurn,Misere_RobotTurn,emptyBoard,fullOccupied} from './src/utils/gameLogic';
 import {styles} from './App.style.js';
 
 
