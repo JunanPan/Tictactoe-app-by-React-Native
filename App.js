@@ -38,7 +38,7 @@ function App() {
 
  const reset=()=>{
     //set Label to empty first,
-    setCurrentLabel('');//avoid the situations like "x=>x" which don't trigger useEffect
+    setCurrentLabel('p');//avoid the situations like "x=>x" which don't trigger useEffect
     setBoard([
       ['','',''],
       ['','',''],
@@ -97,7 +97,7 @@ function App() {
   },[game])
 
   useEffect(()=>{
-    if (currentLabel===''){//do nothing
+    if (currentLabel==='p'){//do nothing
       return
     }
 

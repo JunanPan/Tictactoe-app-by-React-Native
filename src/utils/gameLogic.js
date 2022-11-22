@@ -1,3 +1,5 @@
+
+
 export const emptyBoard=[
   ['','',''],
   ['','',''],
@@ -90,7 +92,7 @@ export const Normal_checkWinState = (board)=>{
     return 3//no result yet
   }
 
-const Normal_defend =()=>{
+const Normal_defend =(board)=>{
   //rows
   for (let i=0;i<3;i++){
     if ((board[i][0]===''&&board[i][1]==='x'&&board[i][2]==='x')||
@@ -139,7 +141,10 @@ export  const Normal_RobotTurn=(board,playerLastStep)=>{
     return {row:1,col:1};
   }
 
-  let boardCopy=[...board];
+  let boardCopy = board.map(board => {
+    return [...board];
+});
+
   let count=0;
   for(let i=0;i<boardCopy.length;i++){
     for(let j=0;j<boardCopy[0].length;j++){
@@ -157,11 +162,65 @@ export  const Normal_RobotTurn=(board,playerLastStep)=>{
       }
     }
   }
-  
 
-  if(count===2 && (playerLastStep[0]===1||playerLastStep[1]===1)){
 
+  if(count===2){
+    if(playerLastStep[0]===1||playerLastStep[1]===1){//first situation :player occupied an edge first
+      if(playerLastStep[0]===1){
+            return {row:playerLastStep[0]-1,col:playerLastStep[1]};
+          }
+          else if(playerLastStep[1]===1){
+            return {row:playerLastStep[0],col:playerLastStep[1]-1};
+          }
+    }
+  else //second situation: player occupied a corner first
+  {
+    //if it is at the 1st diagonal
+   if((playerLastStep[0]===0 && playerLastStep[1]===0) || (playerLastStep[0]===2 && playerLastStep[1]===2)){
+    return {row:0,col:2};
+   }
+   else{// at the 2nd diagonal
+    return {row:0,col:0}
+   }
   }
+  }
+  if(count===4){
+    //check how many corners are occupied to see which situation it is
+    let corners = 0;
+    if (board[0][0]!==''){corners+=1;}
+    if (board[0][2]!==''){corners+=1;}
+    if (board[2][0]!==''){corners+=1;}
+    if (board[2][2]!==''){corners+=1;}
+    if(corners===2){ //first situation
+      //find which corner is o
+    if (board[0][0]==='o'){
+      return  board[0][1]===''?{row:0,col:1}:{row:1,col:0}
+    }
+    else if(board[0][2]==='o'){
+      return  board[0][1]===''?{row:0,col:1}:{row:1,col:2}
+    }
+    else if(board[2][0]==='o'){
+      return  board[1][0]===''?{row:1,col:0}:{row:2,col:1}
+    }
+    else{
+      return  board[1][2]===''?{row:1,col:2}:{row:2,col:1}
+    }
+    }
+  }
+  const result = Normal_defend(board);
+  if(result){
+    return {row:result[0],col:result[1]}
+  }
+  else{
+    for(let i=0;i<board.length;i++){
+      for(let j=0;j<board[0].length;j++){
+        if(board[i][j]===''){
+          return {row:i,col:j}
+        }
+      }
+    }
+  }
+
 
     // const possiblePositions=[];
     // board.forEach((row,rowIndex)=>{
@@ -186,7 +245,6 @@ export  const Normal_RobotTurn=(board,playerLastStep)=>{
       return {row:1,col:1};
     }
     else{
-      console.log(1*2-playerLastStep[0],1*2-playerLastStep[1])
       return {row:1*2-playerLastStep[0],col:1*2-playerLastStep[1]};
     } 
     }
